@@ -1,6 +1,7 @@
 from hashlib import sha256
 from random import randint
 from Crypto.Util import number 
+import json
 
 def hashThis(r, M):
     hash=sha256()
@@ -28,29 +29,54 @@ def produceKeys():
 
     return x,y,g,q
 
-def signTransaction(x,g,q):
-    M = "This is the message"
+def signTransaction(x,y,g,q):
+    #M = "This is the message"
+    
     k = randint(1, q - 1)
     r = pow(g, k, q)
+
+    M = {
+            'sender': y, 
+            'recipient': "bake2", 
+            'amount': 10,
+        }
+    print(M,type(M))
+    
+    M = json.dumps(M)
+    print(M,type(M))
+    
+
+    
 
     e = hashThis(r, M) % q # part 1 of signature
 
     s = (k - (x * e)) % (q-1) # part 2 of signature
 
-    return s,e,M
+    M = json.loads(M)
+    M["sign"] = s
+
+    print(M,type(M))
 
 
-def verifySigner(g,q,s,e,M):
+    return e,M
+
+
+def verifySigner(g,q,e,M):
+    s = M["sign"]
     rv = (pow(g, s, q) * pow (y, e, q)) % q
+    M.pop("sign")
+    M = json.dumps(M)
     ev = hashThis(rv, M) % q
 
     #print ("e " + str(e) + " should equal ev " + str(ev))
     # e should equal ev 
 
     if str(e) == str(ev):
-        return "Author Verified!"  
+        return "Author Verified!"
+    else:
+        return "Nope"
 
 
 x,y,g,q = produceKeys()
-s,e,M = signTransaction(x,g,q)
-print(verifySigner(g,q,s,e,M))
+e,M = signTransaction(x,y,g,q)
+print(verifySigner(g,q,e,M))
