@@ -3,6 +3,16 @@ from random import randint
 from Crypto.Util import number 
 import json
 
+
+"""
+    TODO:
+         - getPrime parameter number?
+         - g = 10? universal?
+         - where all is q needed?
+         - Can't Compute e again in verifySigner() like in signTransaction() WTF
+"""
+
+
 def hashThis(r, M):
     hash=sha256()
     hash.update(str(r).encode())
@@ -30,7 +40,7 @@ def produceKeys():
     return x,y,g,q
 
 def signTransaction(x,y,g,q):
-    #M = "This is the message"
+    # M is message/ transactuion to sign
     
     k = randint(1, q - 1)
     r = pow(g, k, q)
@@ -46,30 +56,37 @@ def signTransaction(x,y,g,q):
     print(M,type(M))
     
 
-    
 
     e = hashThis(r, M) % q # part 1 of signature
 
     s = (k - (x * e)) % (q-1) # part 2 of signature
 
     M = json.loads(M)
-    M["sign"] = s
+    M["sign1"] = s
+    M["sign2"] = e
 
     print(M,type(M))
 
 
-    return e,M
+    return M
 
 
-def verifySigner(g,q,e,M):
-    s = M["sign"]
-    rv = (pow(g, s, q) * pow (y, e, q)) % q
-    M.pop("sign")
+def verifySigner(g,q,M):
+
+    s = M["sign1"]
+    M.pop("sign1")
+    e = M["sign2"]
+    M.pop("sign2")
+
     M = json.dumps(M)
+        
+
+    rv = (pow(g, s, q) * pow (y, e, q)) % q  
     ev = hashThis(rv, M) % q
 
-    #print ("e " + str(e) + " should equal ev " + str(ev))
     # e should equal ev 
+    print(str(e))
+    print(str(ev))
 
     if str(e) == str(ev):
         return "Author Verified!"
@@ -78,5 +95,5 @@ def verifySigner(g,q,e,M):
 
 
 x,y,g,q = produceKeys()
-e,M = signTransaction(x,y,g,q)
-print(verifySigner(g,q,e,M))
+M = signTransaction(x,y,g,q)
+print(verifySigner(g,q,M))

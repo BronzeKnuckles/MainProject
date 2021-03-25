@@ -47,6 +47,8 @@ def signTransaction(x,g,q):
 
 
 def verifySigner(g,q,s,e,M):
+    
+
     rv = (pow(g, s, q) * pow (y, e, q)) % q
     ev = hashThis(rv, M) % q
 
