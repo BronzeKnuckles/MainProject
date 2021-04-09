@@ -4,10 +4,18 @@ from time import time
 from urllib.parse import urlparse
 from uuid import uuid4
 
+import schnorr
+
 import requests
 from flask import Flask, jsonify, request
 
+"""
+    TODO:
+        - Double spend in schnorr? verification?
+        - Test schnorr verification.
+        - generate public key for node identifier
 
+"""
 class Blockchain:
     def __init__(self):
         self.current_transactions = []
@@ -121,7 +129,7 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount, sign):
+    def new_transaction(self, sender, recipient, amount, sign1, sign2, gen, prime):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -134,7 +142,10 @@ class Blockchain:
             'sender': sender, # Sender Public Key
             'recipient': recipient, # Recepient Public Key
             'amount': amount,
-            'sign':sign, # Signed by sender with their keys
+            'sign1': sign1, # Signed by sender with their keys
+            'sign2': sign2,
+            'gen': gen, # Generator used for their keys
+            'prime': prime, # Prime used for their keys
         })
 
         return self.last_block['index'] + 1
@@ -170,8 +181,8 @@ class Blockchain:
         last_hash = self.hash(last_block)
 
         proof = 0
-        while self.valid_proof(last_proof, proof, last_hash) is False:
-            proof += 1
+        while self.valid_proof(last_proof, proof, last_hash) is False: # proof is nonce?
+            proof += 1 
 
         return proof
 
@@ -196,11 +207,6 @@ class Blockchain:
 app = Flask(__name__)
 
 # Generate a globally unique address for this node
-"""
-    TODO:
-        - generate public key for node identifier
-
-"""
 node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
@@ -240,20 +246,29 @@ def new_transaction():
     values = request.get_json()
 
     # Check that the required fields are in the POST'ed data
-    required = ['sender', 'recipient', 'amount', 'sign']
+    required = ['sender', 'recipient', 'amount', 'sign1','sign2']
     if not all(k in values for k in required):
         return 'Missing values', 400
+    
+    M = {
+        'sender': values['sender'],
+        'recipient': values['recipient'],
+        'amount': values['amount'],
+        'sign1': values['sign1'],
+        'sign2': values['sign2'],
+        'gen': values['gen'],
+        'prime': values['prime'],
+    }
 
-    # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign'])
+    # Verify transaction
+    if not schnorr.verifySigner(M):
+        return 'Signature cannot be verified', 400 
 
-    """
-        TODO: 
-            -Verify Signature.
-            -Respond signature verified.
-    """
+    # Create a new Transaction  
+    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'], values['gen'], values['prime'])
 
-    response = {'message': f'Transaction will be added to Block {index}'}
+
+    response = {'message': f'Signature Verified, Transaction will be added to Block {index}'}
     return jsonify(response), 201
 
 

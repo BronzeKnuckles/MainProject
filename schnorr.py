@@ -6,10 +6,6 @@ import json
 
 """
     TODO:
-         - getPrime parameter number?
-         - g = 10? universal?
-         - where all is q needed?
-         - Can't Compute e again in verifySigner() like in signTransaction() WTF
 """
 
 
@@ -20,17 +16,18 @@ def hashThis(r, M):
     return int(hash.hexdigest(),16)
 
 def produceKeys():
-    ## Notation
-    # generator g
+    
+    # generator g , initially it was 2
     g = 10
 
-    # Prime q (for educational purpose I use explicitly a small prime number - for cryptographic purposes this would have to be much larger)
+    # Prime q 
     q = number.getPrime(70)
 
-    ## Key generation
+    ## Key generation:
+
     #Private signing key x
 
-    #x = 32991
+    
     # x <- Secret Key
     x = randint(1,q-1)
 
@@ -64,6 +61,8 @@ def signTransaction(x,y,g,q):
     M = json.loads(M)
     M["sign1"] = s
     M["sign2"] = e
+    M["gen"] = g
+    M["prime"] = q
 
     print(M,type(M))
 
@@ -71,12 +70,17 @@ def signTransaction(x,y,g,q):
     return M
 
 
-def verifySigner(g,q,M):
+def verifySigner(M):
 
     s = M["sign1"]
     M.pop("sign1")
     e = M["sign2"]
     M.pop("sign2")
+    g = M["gen"]
+    M.pop("gen")
+    q = M["prime"]
+    M.pop("prime")
+
 
     M = json.dumps(M)
         
@@ -89,11 +93,11 @@ def verifySigner(g,q,M):
     print(str(ev))
 
     if str(e) == str(ev):
-        return "Author Verified!"
+        return True
     else:
-        return "Nope"
+        return False
 
 
 x,y,g,q = produceKeys()
 M = signTransaction(x,y,g,q)
-print(verifySigner(g,q,M))
+print(verifySigner(M))
