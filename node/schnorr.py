@@ -43,9 +43,9 @@ def signTransaction(x,y,g,q):
     r = pow(g, k, q)
 
     M = {
-            'sender': y, 
-            'recipient': "bake2", 
-            'amount': 10,
+            "sender": y, 
+            "recipient": "bake2", 
+            "amount": 10,
         }
     print(M,type(M))
     
@@ -65,12 +65,16 @@ def signTransaction(x,y,g,q):
     M["prime"] = q
 
     print(M,type(M))
+    M = json.dumps(M)
+    print(M,type(M))
 
 
     return M
 
 
 def verifySigner(M):
+
+    M = json.loads(M)
 
     s = M["sign1"]
     M.pop("sign1")
@@ -80,9 +84,12 @@ def verifySigner(M):
     M.pop("gen")
     q = M["prime"]
     M.pop("prime")
+    y = M["sender"]
+    #M.pop("sender")
 
-
+    
     M = json.dumps(M)
+    print(M,type(M))
         
 
     rv = (pow(g, s, q) * pow (y, e, q)) % q  
@@ -92,12 +99,15 @@ def verifySigner(M):
     print(str(e))
     print(str(ev))
 
+    print("in verifySigner")
+
     if str(e) == str(ev):
         return True
     else:
         return False
 
-
+"""
 x,y,g,q = produceKeys()
 M = signTransaction(x,y,g,q)
 print(verifySigner(M))
+"""

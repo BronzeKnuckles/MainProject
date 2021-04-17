@@ -80,7 +80,7 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.get(f'http://{node}/chain')
+            response = requests.get(f'http://{node}/full_chain')
 
             if response.status_code == 200:
                 length = response.json()['length']
@@ -121,7 +121,7 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount):
+    def new_transaction(self, sender, recipient, amount, sign1, sign2, gen, prime):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -134,6 +134,10 @@ class Blockchain:
             'sender': sender,
             'recipient': recipient,
             'amount': amount,
+            'sign1': sign1,
+            'sign2': sign2,
+            'gen': gen,
+            'prime': prime
         })
 
         return self.last_block['index'] + 1

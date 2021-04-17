@@ -2,21 +2,25 @@ from django.shortcuts import render
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import JSONParser
 
-from django.http import JsonResponse
+from django.http import JsonResponse, response
 
-from blockchain import Blockchain
-import schnorr
+from .blockchain import Blockchain
+from . import schnorr
+
+import json
 
 
 blockchain = Blockchain()
 """
     TODO:
-        - return block based on block number? get req.
-        - /api for all available apis
+
         - node identifier -> public key
-        - save block after every transdaction 
+        - save block after every transaction?
         - delete and save block after consensus change
+        - change miner reward?
 
 """
 @api_view(['GET'])
@@ -48,6 +52,8 @@ def mine(request):
         sender="0",
         recipient=node_identifier,
         amount=1,
+        sign1=1,
+        
     )
 
     # Forge the new Block by adding it to the chain
@@ -61,7 +67,7 @@ def mine(request):
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
     }
-    return JsonResponse(response), 200
+    return JsonResponse(response)
 
 @api_view(['GET'])
 def last_block_hash(request):
@@ -72,34 +78,48 @@ def last_block_hash(request):
 
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def new_transaction(request):
-    values = request.get_json()
-
-    # Check that the required fields are in the POST data
-    required = ['sender', 'recipient', 'amount', 'sign1','sign2']
-    if not all(k in values for k in required):
-        return 'Missing values', 400
+    values = request.data
     
+    # Check that the required fields are in the POST data
+    required = ['sender', 'recipient', 'amount', 'sign1','sign2','gen','prime']
+    if not all(k in values for k in required):
+        response = {
+            "error":"missing values"
+        }
+        return JsonResponse(response)
+    
+    print(values)
+    
+    """
     M = {
-        'sender': values['sender'],
-        'recipient': values['recipient'],
+        "sender": values['sender'],
+        "recipient": values['recipient'],
         'amount': values['amount'],
         'sign1': values['sign1'],
         'sign2': values['sign2'],
         'gen': values['gen'],
         'prime': values['prime'],
     }
+    """
+
+    M = json.dumps(values)
 
     # Verify transaction
+    
+    
+
     if not schnorr.verifySigner(M):
-        return 'Signature cannot be verified', 400 
+        return JsonResponse({'error':'Signature cannot be verified'})
 
     # Create a new Transaction  
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'], values['gen'], values['prime'])
 
 
     response = {'message': f'Signature Verified, Transaction will be added to Block {index}'}
-    return JsonResponse(response), 201
+    return JsonResponse(response)
+
 
 
 @api_view(['GET'])
@@ -108,20 +128,21 @@ def full_chain(request):
         'chain': blockchain.chain,
         'length': len(blockchain.chain),
     }
-    return JsonResponse(response), 200
+    return JsonResponse(response)
 
 @api_view(['GET'])
 def block(request,block_num):
     response={
-        'block':blockchain.chain[block_num+1]
+        'block':blockchain.chain[block_num]
     }
-    return JsonResponse(response), 200
+    return JsonResponse(response)
 
 
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def register_nodes(request):
-    values = request.get_json()
+    values = request.data
 
     nodes = values.get('nodes')
     if nodes is None:
@@ -134,7 +155,7 @@ def register_nodes(request):
         'message': 'New nodes have been added',
         'total_nodes': list(blockchain.nodes),
     }
-    return JsonResponse(response), 201
+    return JsonResponse(response)
 
 
 @api_view(['GET'])
@@ -152,6 +173,6 @@ def consensus(request):
             'chain': blockchain.chain
         }
 
-    return JsonResponse(response), 200
+    return JsonResponse(response)
 
 

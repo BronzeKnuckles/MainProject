@@ -44,6 +44,4 @@ class Blockchain:
         self.current_transactions = []
 
         self.chain.append(block)
-        return block
-
-    
+        return block   
