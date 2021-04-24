@@ -97,6 +97,12 @@ class Blockchain:
             return True
 
         return False
+    
+    def forwardTx(self, M):
+        nodes = self.nodes
+
+        for node in nodes:
+            request.post(f'http://{node}/new_tx', json=json.loads(M))
 
     def new_block(self, proof, previous_hash):
         """

@@ -112,6 +112,8 @@ def new_transaction(request):
 
     M = json.dumps(values)
 
+    blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
+
     # Verify transaction
     
     block = blockchain.current_transactions
