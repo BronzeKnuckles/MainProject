@@ -139,6 +139,7 @@ class Blockchain:
             'gen': gen,
             'prime': prime
         })
+        
 
         return self.last_block['index'] + 1
 
@@ -183,16 +184,16 @@ class Blockchain:
         """
         Validates the Proof
 
-        :param last_proof: <int> Previous Proof
-        :param proof: <int> Current Proof
-        :param last_hash: <str> The hash of the Previous Block
-        :return: <bool> True if correct, False if not.
+        int: Previous Proof
+        int: Current Proof
+        str: The hash of the Previous Block
+        bool: True if correct, False if not.
 
         """
 
         guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
+        return guess_hash[:5] == "00000"
 
 
 # Instantiate the Node

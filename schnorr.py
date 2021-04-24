@@ -36,7 +36,7 @@ def produceKeys():
 
     return x,y,g,q
 
-def signTransaction(x,y,g,q):
+def signTransaction(x,y,g,q,recipient = 123, amount = 10):
     # M is message/ transactuion to sign
     
     k = randint(1, q - 1)
@@ -44,13 +44,13 @@ def signTransaction(x,y,g,q):
 
     M = {
             "sender": y, 
-            "recipient": 123, 
-            "amount": 10,
+            "recipient": recipient, 
+            "amount": amount,
         }
-    print(M,type(M))
+    #print(M,type(M))
     
     M = json.dumps(M)
-    print(M,type(M))
+    #print(M,type(M))
     
 
 
@@ -64,9 +64,9 @@ def signTransaction(x,y,g,q):
     M["gen"] = g
     M["prime"] = q
 
-    print(M,type(M))
+    #print(M,type(M))
     M = json.dumps(M)
-    print(M,type(M))
+    #print(M,type(M))
 
 
     return M

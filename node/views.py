@@ -18,9 +18,8 @@ blockchain = Blockchain()
     TODO:
 
         - node identifier -> public key
-        - save block after every transaction?
-        - delete and save block after consensus change
-        - change miner reward?
+
+        - show log
 
 """
 @api_view(['GET'])
@@ -47,13 +46,16 @@ def mine(request):
     # The sender is "0" to signify that this node has mined a new coin.
 
     # for now nodeidentifier is 1
-    node_identifier = "1"
+    node_identifier = 376436439478
     blockchain.new_transaction(
-        sender="0",
-        recipient=node_identifier,
-        amount=1,
-        sign1=1,
-        
+        sender = 0,
+        recipient = node_identifier,
+        amount = 1,
+        sign1 = 1,
+        sign2 = 1,
+        gen = 1,
+        prime = 1,
+
     )
 
     # Forge the new Block by adding it to the chain
@@ -73,7 +75,11 @@ def mine(request):
 def last_block_hash(request):
     last_block = blockchain.last_block
     previous_hash = blockchain.hash(last_block)
-    return previous_hash
+
+    response = {
+        'last-block-hash':previous_hash
+    }
+    return JsonResponse(response)
 
 
 
@@ -108,16 +114,20 @@ def new_transaction(request):
 
     # Verify transaction
     
-    
+    block = blockchain.current_transactions
 
     if not schnorr.verifySigner(M):
         return JsonResponse({'error':'Signature cannot be verified'})
+    elif values in block:
+        return JsonResponse({'error':'Same transaction exists in this block'})
+
+    #print(block['transactions'])
 
     # Create a new Transaction  
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'], values['gen'], values['prime'])
 
 
-    response = {'message': f'Signature Verified, Transaction will be added to Block {index}'}
+    response = {'message': f'Signature Verified, Transaction will be added to block {index}'}
     return JsonResponse(response)
 
 
