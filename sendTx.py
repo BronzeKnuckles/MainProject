@@ -26,12 +26,13 @@ for i in range(100):
 
         t.append(f-s)
         
-    
+    """
     if (i+1) % 10 == 0:
 
         r = requests.get(f'http://{node}/mine')
         print("mining...")
         print(type(r))
+        """
     
 
 s = 0

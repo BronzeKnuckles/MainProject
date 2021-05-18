@@ -21,8 +21,8 @@ def produceKeys():
     g = 10
 
     # Prime q 
-    q = number.getPrime(70)
-
+    q = number.getPrime(64)
+    
     ## Key generation:
 
     #Private signing key x
@@ -30,6 +30,7 @@ def produceKeys():
     
     # x <- Secret Key
     x = randint(1,q-1)
+    
 
     # calculate public verification key y
     y = pow(g, x, q)
@@ -47,10 +48,10 @@ def signTransaction(x,y,g,q):
             "recipient": 123, 
             "amount": 10,
         }
-    print(M,type(M))
+    #print(M,type(M))
     
     M = json.dumps(M)
-    print(M,type(M))
+    #print(M,type(M))
     
 
 
@@ -64,9 +65,9 @@ def signTransaction(x,y,g,q):
     M["gen"] = g
     M["prime"] = q
 
-    print(M,type(M))
+    #print(M,type(M))
     M = json.dumps(M)
-    print(M,type(M))
+    #print(M,type(M))
 
 
     return M
@@ -89,17 +90,17 @@ def verifySigner(M):
 
     
     M = json.dumps(M)
-    print(M,type(M))
+    #print(M,type(M))
         
 
     rv = (pow(g, s, q) * pow (y, e, q)) % q  
     ev = hashThis(rv, M) % q
 
     # e should equal ev 
-    print(str(e))
-    print(str(ev))
+    #print(str(e))
+    #print(str(ev))
 
-    print("in verifySigner")
+    #print("in verifySigner")
 
     if str(e) == str(ev):
         return True

@@ -1,11 +1,13 @@
 from django.shortcuts import render
+import requests
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import JSONParser
 
-from django.http import JsonResponse, response
+from django.http import JsonResponse, HttpResponseRedirect
+
 
 from .blockchain import Blockchain
 from . import schnorr
@@ -18,7 +20,8 @@ blockchain = Blockchain()
     TODO:
 
         - node identifier -> public key
-
+        - uncomment forward TX
+        
         - show log
 
 """
@@ -62,6 +65,10 @@ def mine(request):
     previous_hash = blockchain.hash(last_block)
     block = blockchain.new_block(proof, previous_hash)
 
+    # Forward Mined block
+    
+    blockchain.forwardBlock(json.dumps(block))
+
     response = {
         'message': "New Block Forged",
         'index': block['index'],
@@ -70,6 +77,31 @@ def mine(request):
         'previous_hash': block['previous_hash'],
     }
     return JsonResponse(response)
+
+@api_view(['POST'])
+def new_block(request):
+
+    print("Received Block...")
+    values = request.data
+
+    proof = int(values["proof"])
+
+    print(proof,values)
+
+    if (values not in blockchain.chain) and proof == blockchain.proof_of_work(blockchain.chain[-1]):
+        print("Proof Matched, adding block....")
+        blockchain.chain.append(json.dumps(values)) # Test
+        response = {
+            'new block':'verified and accepted'
+        }
+    else:
+        response ={
+            'error':'proof not matching or block already exists'
+        }
+    
+    return JsonResponse(response)
+
+
 
 @api_view(['GET'])
 def last_block_hash(request):
@@ -96,7 +128,7 @@ def new_transaction(request):
         }
         return JsonResponse(response)
     
-    print(values)
+    #print(values)
     
     """
     M = {
@@ -107,12 +139,13 @@ def new_transaction(request):
         'sign2': values['sign2'],
         'gen': values['gen'],
         'prime': values['prime'],
+        'type':micro
     }
     """
 
     M = json.dumps(values)
 
-    blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
+    print("Transaction Received")
 
     # Verify transaction
     
@@ -123,11 +156,18 @@ def new_transaction(request):
     elif values in block:
         return JsonResponse({'error':'Same transaction exists in this block'})
 
-    #print(block['transactions'])
+    print("Transaction Verified, Forwarding transaction...")
+
+    #blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
 
     # Create a new Transaction  
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'], values['gen'], values['prime'])
+    print(f"Transaction Added to Block {index}...")
 
+    # Mining Block after 10 transactions in current block
+    if len(blockchain.current_transactions) == 10:
+        print(f"10 Transactions in block {index}, mining...")
+        return HttpResponseRedirect('/mine')
 
     response = {'message': f'Signature Verified, Transaction will be added to block {index}'}
     return JsonResponse(response)

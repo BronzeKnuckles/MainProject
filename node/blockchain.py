@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 import requests
-from flask import Flask, jsonify, request
+
 
 
 class Blockchain:
@@ -102,7 +102,14 @@ class Blockchain:
         nodes = self.nodes
 
         for node in nodes:
-            request.post(f'http://{node}/new_tx', json=json.loads(M))
+            response = requests.post(f'http://{node}/new_tx', json=json.loads(M))
+        
+    def forwardBlock(self,block):
+        nodes = self.nodes
+
+        for node in nodes:
+            print("Forwarding Mined Block...")
+            requests.post(f'http://{node}/new_block', json=json.loads(block))
 
     def new_block(self, proof, previous_hash):
         """
@@ -201,7 +208,7 @@ class Blockchain:
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:5] == "00000"
 
-
+"""
 # Instantiate the Node
 app = Flask(__name__)
 
@@ -310,3 +317,4 @@ if __name__ == '__main__':
     port = args.port
 
     app.run(host='0.0.0.0', port=port)
+"""
