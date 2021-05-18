@@ -32,7 +32,7 @@ for i in range(100):
         r = response.json
         type(r)
         f = time.time()
-
+        print(i)
         t.append(f-s)
         
     """

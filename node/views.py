@@ -20,7 +20,9 @@ blockchain = Blockchain()
     TODO:
 
         - node identifier -> public key
-        - uncomment forward TX
+        - uncomment forward TX - done
+        - make wait random time and test for block forwards and timing ?
+        - register for both nodes and test for communications
         
         - show log
 
@@ -53,7 +55,7 @@ def mine(request):
     blockchain.new_transaction(
         sender = 0,
         recipient = node_identifier,
-        amount = 1,
+        amount = 100,
         sign1 = 1,
         sign2 = 1,
     )
@@ -83,19 +85,23 @@ def new_block(request):
 
     proof = int(values["proof"])
 
-    #print(proof,values)
+    # check if all data is received.
 
     last_proof = blockchain.last_block["proof"]
     #print(blockchain.last_block)
     last_hash = blockchain.hash(blockchain.last_block)
 
-    if (values not in blockchain.chain) and blockchain.valid_proof(last_proof, proof, last_hash):
+    chain = blockchain.chain
+    print(type(chain))
+
+    if (values not in chain) and blockchain.valid_proof(last_proof, proof, last_hash):
         print("Proof Matched, adding block....")
         blockchain.chain.append(values) 
         response = {
             'new block':'verified and accepted'
         }
     else:
+        print('proof not matching or block already exists')
         response ={
             'error':'proof not matching or block already exists'
         }
@@ -160,14 +166,15 @@ def new_transaction(request):
         print("sign cannot be verified")
         return JsonResponse({'error':'Signature cannot be verified'})
     elif values in block:
+        print("Same Tx exists in block")
         return JsonResponse({'error':'Same transaction exists in this block'})
 
-    print("Transaction Verified, Forwarding transaction...")
-
-    blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
-
+    print("Transaction Verified, Adding and Forwarding transaction...")
     # Create a new Transaction  
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'])
+    blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
+
+
     print(f"Transaction Added to Block {index}...")
 
     # Mining Block after 10 transactions in current block
