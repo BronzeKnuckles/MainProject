@@ -62,8 +62,8 @@ def signTransaction(x,y,g,q):
     M = json.loads(M)
     M["sign1"] = s
     M["sign2"] = e
-    M["gen"] = g
-    M["prime"] = q
+    #M["gen"] = g
+    #M["prime"] = q
 
     #print(M,type(M))
     M = json.dumps(M)
@@ -81,13 +81,15 @@ def verifySigner(M):
     M.pop("sign1")
     e = M["sign2"]
     M.pop("sign2")
-    g = M["gen"]
-    M.pop("gen")
-    q = M["prime"]
-    M.pop("prime")
     y = M["sender"]
     #M.pop("sender")
 
+    if M["amount"] >1000:
+        q = 76443937932047922915202785024949244450942401384750373484858624451650688927493
+        g = 5
+    else:
+        q = 338269374607933819018612063891041467693
+        g = 3
     
     M = json.dumps(M)
     #print(M,type(M))

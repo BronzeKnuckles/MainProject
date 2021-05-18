@@ -15,7 +15,7 @@ class Blockchain:
         self.nodes = set()
 
         # Create the genesis block
-        self.new_block(previous_hash='1', proof=100)
+        self.new_block(previous_hash='1', proof=100, genesis= True)
 
     def register_node(self, address):
         """
@@ -111,7 +111,7 @@ class Blockchain:
             print("Forwarding Mined Block...")
             requests.post(f'http://{node}/new_block', json=json.loads(block))
 
-    def new_block(self, proof, previous_hash):
+    def new_block(self, proof, previous_hash, genesis=False):
         """
         Create a new Block in the Blockchain
 
@@ -120,9 +120,16 @@ class Blockchain:
         :return: New Block
         """
 
+
+        t= time()
+        if genesis:
+            t = "Gen"
+        
+
+
         block = {
             'index': len(self.chain) + 1,
-            'timestamp': time(),
+            'timestamp': t,
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
@@ -134,7 +141,7 @@ class Blockchain:
         self.chain.append(block)
         return block
 
-    def new_transaction(self, sender, recipient, amount, sign1, sign2, gen, prime):
+    def new_transaction(self, sender, recipient, amount, sign1, sign2):
         """
         Creates a new transaction to go into the next mined Block
 
@@ -149,8 +156,6 @@ class Blockchain:
             'amount': amount,
             'sign1': sign1,
             'sign2': sign2,
-            'gen': gen,
-            'prime': prime
         })
         
 

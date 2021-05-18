@@ -56,9 +56,6 @@ def mine(request):
         amount = 1,
         sign1 = 1,
         sign2 = 1,
-        gen = 1,
-        prime = 1,
-
     )
 
     # Forge the new Block by adding it to the chain
@@ -86,11 +83,15 @@ def new_block(request):
 
     proof = int(values["proof"])
 
-    print(proof,values)
+    #print(proof,values)
 
-    if (values not in blockchain.chain) and proof == blockchain.proof_of_work(blockchain.chain[-1]):
+    last_proof = blockchain.last_block["proof"]
+    #print(blockchain.last_block)
+    last_hash = blockchain.hash(blockchain.last_block)
+
+    if (values not in blockchain.chain) and blockchain.valid_proof(last_proof, proof, last_hash):
         print("Proof Matched, adding block....")
-        blockchain.chain.append(json.dumps(values)) # Test
+        blockchain.chain.append(values) 
         response = {
             'new block':'verified and accepted'
         }
@@ -98,7 +99,11 @@ def new_block(request):
         response ={
             'error':'proof not matching or block already exists'
         }
+
     
+    
+
+
     return JsonResponse(response)
 
 
@@ -121,7 +126,7 @@ def new_transaction(request):
     values = request.data
     
     # Check that the required fields are in the POST data
-    required = ['sender', 'recipient', 'amount', 'sign1','sign2','gen','prime']
+    required = ['sender', 'recipient', 'amount', 'sign1','sign2']
     if not all(k in values for k in required):
         response = {
             "error":"missing values"
@@ -152,16 +157,17 @@ def new_transaction(request):
     block = blockchain.current_transactions
 
     if not schnorr.verifySigner(M):
+        print("sign cannot be verified")
         return JsonResponse({'error':'Signature cannot be verified'})
     elif values in block:
         return JsonResponse({'error':'Same transaction exists in this block'})
 
     print("Transaction Verified, Forwarding transaction...")
 
-    #blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
+    blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
 
     # Create a new Transaction  
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'], values['gen'], values['prime'])
+    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'])
     print(f"Transaction Added to Block {index}...")
 
     # Mining Block after 10 transactions in current block
