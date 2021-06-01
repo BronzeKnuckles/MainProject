@@ -14,8 +14,8 @@ for i in range(100):
 
     for node in nodes:
 
-        s = time.time()
         
+        time.sleep(2.5)
         
         amount = random.randint(1,3000)
 
@@ -25,15 +25,19 @@ for i in range(100):
         else:
             q = 338269374607933819018612063891041467693
             g = 3
+        s = time.time()
         recipient = random.randint(999,q)
         x,y,g,q = schnorr.produceKeys(q,g)
         M = schnorr.signTransaction(x,y,g,q,recipient,amount) 
+
         response = requests.post(f'http://{node}/new_tx', json= json.loads(M))
         r = response.json
         type(r)
         f = time.time()
         print(i)
         t.append(f-s)
+        print(M)
+
         
     """
     if (i+1) % 10 == 0:

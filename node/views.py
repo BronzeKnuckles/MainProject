@@ -13,6 +13,8 @@ from .blockchain import Blockchain
 from . import schnorr
 
 import json
+import time
+import random
 
 
 blockchain = Blockchain()
@@ -23,6 +25,8 @@ blockchain = Blockchain()
         - uncomment forward TX - done
         - make wait random time and test for block forwards and timing ?
         - register for both nodes and test for communications
+
+        - multi threading for forward tx and continue ?
         
         - show log
 
@@ -65,7 +69,7 @@ def mine(request):
     block = blockchain.new_block(proof, previous_hash)
 
     # Forward Mined block
-    
+    time.sleep(random.uniform(1,4))
     blockchain.forwardBlock(json.dumps(block))
 
     response = {
@@ -172,6 +176,7 @@ def new_transaction(request):
     print("Transaction Verified, Adding and Forwarding transaction...")
     # Create a new Transaction  
     index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'], values['sign1'], values['sign2'])
+    time.sleep(random.uniform(1,4))
     blockchain.forwardTx(M)    # Forwarding Transaction to other nodes.
 
 
