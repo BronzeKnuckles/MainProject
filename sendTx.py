@@ -6,7 +6,7 @@ import time
 import schnorr
 
 
-nodes = ['127.0.0.1:8000']
+nodes = ['ec2-3-138-203-253.us-east-2.compute.amazonaws.com:8000']
 t = []
 
 
