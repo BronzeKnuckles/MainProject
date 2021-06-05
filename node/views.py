@@ -36,6 +36,7 @@ def api(request):
     response = {
         "/mine": "mine current block",
         "/lbh": "request last block hash",
+        "/new_block": "Send new mined block",
         "/new_tx": "create new transaction",
         "/full_chain": "request full block chain",
         "/block/<int:block_num>": "retrieve block of number block_num",
