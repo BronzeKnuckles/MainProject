@@ -80,6 +80,7 @@ def mine(request):
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
     }
+    print(response)
     return JsonResponse(response)
 
 @api_view(['POST'])

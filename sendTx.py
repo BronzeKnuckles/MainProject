@@ -6,7 +6,8 @@ import time
 import schnorr
 
 
-nodes = ['ec2-3-138-203-253.us-east-2.compute.amazonaws.com:8000']
+#nodes = ['ec2-3-138-203-253.us-east-2.compute.amazonaws.com']
+nodes = ['127.0.0.1:8000']
 t = []
 
 
@@ -15,7 +16,7 @@ for i in range(100):
     for node in nodes:
 
         
-        time.sleep(2.5)
+        #time.sleep(2.5)
         
         amount = random.randint(1,3000)
 
