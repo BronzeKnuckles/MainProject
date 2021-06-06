@@ -100,10 +100,15 @@ class Blockchain:
     
     def forwardTx(self, M):
         nodes = self.nodes
+        if not nodes:
+            print("No nodes to forward")
 
         for node in nodes:
-            response = requests.post(f'http://{node}/new_tx', json=json.loads(M))
-        
+            try:
+                response = requests.post(f'http://{node}/new_tx', json=json.loads(M))
+            except:
+                print(f'--ERROR while forwarding Transaction to node {node}--')
+    
     def forwardBlock(self,block):
         nodes = self.nodes
 

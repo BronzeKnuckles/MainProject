@@ -16,6 +16,8 @@ import json
 import time
 import random
 
+import pprint
+
 
 blockchain = Blockchain()
 """
@@ -80,7 +82,7 @@ def mine(request):
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
     }
-    print(response)
+    pprint.pprint(response)
     return JsonResponse(response)
 
 @api_view(['POST'])
@@ -163,6 +165,7 @@ def new_transaction(request):
     M = json.dumps(values)
 
     print("Transaction Received")
+    pprint.pprint(values)
 
     # Verify transaction
     

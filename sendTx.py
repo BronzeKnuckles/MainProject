@@ -30,10 +30,12 @@ for i in range(100):
         recipient = random.randint(999,q)
         x,y,g,q = schnorr.produceKeys(q,g)
         M = schnorr.signTransaction(x,y,g,q,recipient,amount) 
-
-        response = requests.post(f'http://{node}/new_tx', json= json.loads(M))
-        r = response.json
-        type(r)
+        try:
+            response = requests.post(f'http://{node}/new_tx', json= json.loads(M))
+            r = response.json
+        except:
+            print("ERROR : could'nt forward")
+        #type(r)
         f = time.time()
         print(i)
         t.append(f-s)
