@@ -24,12 +24,6 @@ blockchain = Blockchain()
     TODO:
 
         - node identifier -> public key
-        - uncomment forward TX - done
-        - make wait random time and test for block forwards and timing ?
-        - register for both nodes and test for communications
-
-        - multi threading for forward tx and continue ?
-        
         - show log
 
 """
@@ -150,6 +144,7 @@ def new_transaction(request):
     #print(values)
     
     """
+        ::TX FORMAT::->
     M = {
         "sender": values['sender'],
         "recipient": values['recipient'],
@@ -158,7 +153,6 @@ def new_transaction(request):
         'sign2': values['sign2'],
         'gen': values['gen'],
         'prime': values['prime'],
-        'type':micro
     }
     """
 

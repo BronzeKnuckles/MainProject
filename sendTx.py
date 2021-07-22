@@ -6,7 +6,7 @@ import time
 import schnorr
 
 
-#nodes = ['ec2-3-138-203-253.us-east-2.compute.amazonaws.com']
+
 nodes = ['127.0.0.1:8000']
 t = []
 
@@ -44,7 +44,7 @@ for i in range(100):
         
     """
     if (i+1) % 10 == 0:
-
+        #nodes = ['ec2-3-138-203-253.us-east-2.compute.amazonaws.com']
         r = requests.get(f'http://{node}/mine')
         print("mining...")
         print(type(r))
