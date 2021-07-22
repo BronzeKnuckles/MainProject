@@ -34,7 +34,7 @@ for i in range(100):
             response = requests.post(f'http://{node}/new_tx', json= json.loads(M))
             r = response.json
         except:
-            print("ERROR : could'nt forward")
+            print("ERROR : could'nt send")
         #type(r)
         f = time.time()
         print(i)
